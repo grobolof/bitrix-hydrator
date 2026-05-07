@@ -210,21 +210,8 @@ class BxEmHydratorElement
 
         if ($class instanceof BxEmHydratorSectionAttachment) {
             if (Rule::dataRelated(configure: $configure)) {
-                if (!$configure->getIsSection()) {
-                    $sections = null;
-                    $sectionQuery = \CIBlockElement::GetElementGroups(ID: $configure->getFields()['ID']);
-
-                    while ($section = $sectionQuery->GetNextElement()) {
-                        $sections[] = self::exec(
-                            item: $section,
-                            className: $configure->getClassName(),
-                            rules: $configure->getRules(),
-                            isSection: true
-                        );
-                    }
-
-                    return $sections;
-                } else {
+                if (is_array(value: $configure->getFields()[$configure->getField()])) {
+                    // Определили что свойство является кастомным
                     $item = Attachment::section(id: (int)$configure->getValue());
 
                     return self::exec(
@@ -233,6 +220,31 @@ class BxEmHydratorElement
                         rules: $configure->getRules(),
                         isSection: true
                     );
+                } else {
+                    if (!$configure->getIsSection()) {
+                        $sections = null;
+                        $sectionQuery = \CIBlockElement::GetElementGroups(ID: $configure->getFields()['ID']);
+
+                        while ($section = $sectionQuery->GetNextElement()) {
+                            $sections[] = self::exec(
+                                item: $section,
+                                className: $configure->getClassName(),
+                                rules: $configure->getRules(),
+                                isSection: true
+                            );
+                        }
+
+                        return $sections;
+                    } else {
+                        $item = Attachment::section(id: (int)$configure->getValue());
+
+                        return self::exec(
+                            item: $item,
+                            className: $configure->getClassName(),
+                            rules: $configure->getRules(),
+                            isSection: true
+                        );
+                    }
                 }
             }
         }
@@ -294,8 +306,13 @@ class BxEmHydratorElement
 
             if (new $dataTypeInArray instanceof BxEmHydratorSectionAttachment) {
                 if (Rule::dataRelated(configure: $configure)) {
-                    if (!$configure->getIsSection()) {
-                        $sectionQuery = \CIBlockElement::GetElementGroups(ID: $configure->getFields()['ID']);
+                    if (is_array(value: $configure->getFields()[$configure->getField()])) {
+                        // Определили что свойство является кастомным
+                        $sectionQuery = \CIBlockSection::GetList(
+                            arFilter: ['ID' => $configure->getValue(), 'CNT_ACTIVE' => 'Y', 'GLOBAL_ACTIVE' => 'Y'],
+                            bIncCnt: true,
+                            arSelect: ['*', 'UF_*'],
+                        );
 
                         while ($section = $sectionQuery->GetNextElement()) {
                             $values[] = self::exec(
@@ -306,7 +323,21 @@ class BxEmHydratorElement
                             );
                         }
                     } else {
-                        if (Rule::dataRelated(configure: $configure)) {
+                        if (!$configure->getIsSection()) {
+                            $sectionQuery = \CIBlockElement::GetElementGroups(
+                                ID: $configure->getFields()['ID'],
+                                bElementOnly: true
+                            );
+
+                            while ($section = $sectionQuery->GetNextElement()) {
+                                $values[] = self::exec(
+                                    item: $section,
+                                    className: $configure->getDataTypeInArray(),
+                                    rules: $configure->getRules(),
+                                    isSection: true
+                                );
+                            }
+                        } else {
                             foreach ($configure->getValue() as $value) {
                                 $item = \CIBlockElement::GetByID(ID: $value)->GetNextElement();
                                 $values[] = self::exec(
@@ -324,7 +355,11 @@ class BxEmHydratorElement
                 if (Rule::dataRelated(configure: $configure)) {
                     if ($configure->getIsSection()) {
                         $query = \CIBlockElement::GetList(
-                            arFilter: ['SECTION_ID' => $configure->getFields()['ID'], 'ACTIVE' => 'Y'],
+                            arFilter: [
+                                'SECTION_ID' => $configure->getFields()['ID'],
+                                'ACTIVE' => 'Y',
+                                'SECTION_GLOBAL_ACTIVE' => 'Y'
+                            ],
                             arSelectFields: ['*'],
                         );
 
@@ -337,7 +372,7 @@ class BxEmHydratorElement
                         }
                     } else {
                         $query = \CIBlockElement::GetList(
-                            arFilter: ['ID' => $configure->getValue(), 'ACTIVE' => 'Y'],
+                            arFilter: ['ID' => $configure->getValue(), 'ACTIVE' => 'Y', 'SECTION_GLOBAL_ACTIVE' => 'Y'],
                             arSelectFields: ['*'],
                         );
 
