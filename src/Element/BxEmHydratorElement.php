@@ -355,6 +355,7 @@ class BxEmHydratorElement
                 if (Rule::dataRelated(configure: $configure)) {
                     if ($configure->getIsSection()) {
                         $query = \CIBlockElement::GetList(
+                            arOrder: ['SORT' => 'ASC'],
                             arFilter: [
                                 'SECTION_ID' => $configure->getFields()['ID'],
                                 'ACTIVE' => 'Y',
