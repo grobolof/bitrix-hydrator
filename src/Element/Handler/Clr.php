@@ -37,7 +37,7 @@ readonly class Clr
         $propertiesSlc = [];
 
         foreach ($properties as $field => $property) {
-            if (empty($property['VALUE'])) {
+            if ($property['VALUE'] === '') {
                 continue;
             }
 

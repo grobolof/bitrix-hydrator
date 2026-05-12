@@ -115,6 +115,7 @@ class BxEmHydratorElement
 
             match ($configure->getDataType()) {
                 'int' => $model->{$method}(self::int(configure: $configure)),
+                'float' => $model->{$method}(self::float(configure: $configure)),
                 'string' => $model->{$method}(self::string(configure: $configure)),
                 'bool' => $model->{$method}(self::bool(configure: $configure)),
                 'enum' => $model->{$method}(self::enum(configure: $configure)),
@@ -174,6 +175,11 @@ class BxEmHydratorElement
     private static function int(BxEmHydratorConfigure $configure): int
     {
         return (int)$configure->getValue();
+    }
+
+    private static function float(BxEmHydratorConfigure $configure): float
+    {
+        return (float)$configure->getValue();
     }
 
     private static function string(BxEmHydratorConfigure $configure): string
