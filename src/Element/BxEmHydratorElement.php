@@ -353,7 +353,7 @@ class BxEmHydratorElement
 
             if (new $dataTypeInArray instanceof BxEmHydratorEntityInterface) {
                 if (Rule::dataRelated(configure: $configure)) {
-                    if ($configure->getIsSection() && !is_array($configure->getFields()[$configure->getField()])) {
+                    if ($configure->getIsSection() && !isset($configure->getFields()[$configure->getField()]['ID'])) {
                         $query = \CIBlockElement::GetList(
                             arOrder: ['SORT' => 'ASC'],
                             arFilter: [
